@@ -1,5 +1,5 @@
 import math
-
+from copy import copy, deepcopy
 
 class Cube:
     def __init__(self, (x,y,z), r):
@@ -127,6 +127,23 @@ class Cube:
             self.nodes[i][2] = (c*(u*u+v*v)-w*(a*u+b*v-u*x-v*y-w*z))*(1-math.cos(radians))+L*z*math.cos(radians)+\
                 math.sqrt(L)*(-b*u+a*v-v*x+u*y)*math.sin(radians)
             self.nodes[i][2] /= L
+
+    def __deepcopy__(self, memo):
+        obj = copy(self)
+        obj.nodes = []
+        for node in self.nodes:
+            obj.nodes.append(deepcopy(node))
+
+        obj.edges = []
+        for edge in self.edges:
+            obj.edges.append(deepcopy(edge))
+
+        obj.faces = []
+        for face in self.faces:
+            obj.faces.append(deepcopy(face))
+
+        obj.center = deepcopy(self.center, memo)
+        return obj
 
 
 

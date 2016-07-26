@@ -22,6 +22,21 @@ class MagicCubeLogic:
     def __init__(self):
         self.ori_order = [i for i in range(27)]
         self.cur_order = [i for i in range(27)]
+        self.face_proj_func = {}
+        self.face_proj_func['F'] = [2,1,5,3,0,4]
+        self.face_proj_func['B'] = [4,1,0,3,5,2]
+        self.face_proj_func['L'] = [3,0,2,5,4,1]
+        self.face_proj_func['R'] = [1,5,2,0,4,3]
+        self.face_proj_func['U'] = [0,2,3,4,1,5]
+        self.face_proj_func['D'] = [0,4,1,2,3,5]
+
+        self.cube_proj_func = {}
+        self.cube_proj_func['F'] = [(18,20),(19,11),(20,2),(9,19),(0,18),(1,9),(11,1),(2,0)]
+        self.cube_proj_func['B'] = [(24,6),(15,7),(6,8),(8,26),(7,17),(25,15),(26,24),(17,25)]
+        self.cube_proj_func['L'] = [(24,18),(21,9),(18,0),(9,3),(0,6),(3,15),(6,24),(15,21)]
+        self.cube_proj_func['R'] = [(26,8),(17,5),(8,2),(5,11),(2,20),(11,23),(20,26),(23,17)]
+        self.cube_proj_func['U'] = [(24,26),(25,23),(26,20),(23,19),(20,18),(19,21),(18,24),(21,25)]
+        self.cube_proj_func['D'] = [(8,6),(7,3),(6,0),(3,1),(0,2),(1,5),(2,8),(5,7)]
 
     def takeAction(self, action):
         if action == 'F':
@@ -189,43 +204,45 @@ class MagicCubeDisplay:
         # top
         self.cubeCenters.append([center[0],center[1]+self.cubeRadius*2+1,center[2]])
 
-        # bottom nine cubes
-        self.cubes.append([Cube((self.cubeCenters[1][0]-self.cubeRadius*2-1,
-                                self.cubeCenters[1][1]-self.cubeRadius*2-1,
-                                self.cubeCenters[1][2]), self.cubeRadius),
-                           [True,True,True,False,False,False]])
-        self.cubes.append([Cube((self.cubeCenters[1][0],
-                                self.cubeCenters[1][1]-self.cubeRadius*2-1,
-                                self.cubeCenters[1][2]), self.cubeRadius),
-                           [True,True,False,False,False,False]])
-        self.cubes.append([Cube((self.cubeCenters[0][0]+self.cubeRadius*2+1,
-                                self.cubeCenters[0][1],
-                                self.cubeCenters[0][2]-self.cubeRadius*2-1), self.cubeRadius),
-                           [True,True,False,False,True,False]])
-        self.cubes.append([Cube((self.cubeCenters[0][0]-self.cubeRadius*2-1,
-                                self.cubeCenters[0][1],
-                                self.cubeCenters[0][2]), self.cubeRadius),
-                           [True,False,True,False,False,False]])
-        self.cubes.append([Cube((self.cubeCenters[0][0],
-                                self.cubeCenters[0][1],
-                                self.cubeCenters[0][2]), self.cubeRadius),
-                           [True,False,False,False,False,False]])
-        self.cubes.append([Cube((self.cubeCenters[0][0]+self.cubeRadius*2+1,
-                                self.cubeCenters[0][1],
-                                self.cubeCenters[0][2]), self.cubeRadius),
-                           [True,False,False,False,True,False]])
-        self.cubes.append([Cube((self.cubeCenters[0][0]-self.cubeRadius*2-1,
-                                self.cubeCenters[0][1],
-                                self.cubeCenters[0][2]+self.cubeRadius*2+1), self.cubeRadius),
-                           [True,False,True,True,False,False]])
-        self.cubes.append([Cube((self.cubeCenters[0][0],
-                                self.cubeCenters[0][1],
-                                self.cubeCenters[0][2]+self.cubeRadius*2+1), self.cubeRadius),
-                           [True,False,False,True,False,False]])
-        self.cubes.append([Cube((self.cubeCenters[0][0]+self.cubeRadius*2+1,
-                                self.cubeCenters[0][1],
-                                self.cubeCenters[0][2]+self.cubeRadius*2+1), self.cubeRadius),
-                           [True,False,False,True,True,False]])
+        # top nine cubes
+        self.cubes.append([Cube((self.cubeCenters[5][0]-self.cubeRadius*2-1,
+                                self.cubeCenters[5][1],
+                                self.cubeCenters[5][2]-self.cubeRadius*2-1), self.cubeRadius),
+                           [False,True,True,False,False,True]])
+        self.cubes.append([Cube((self.cubeCenters[5][0],
+                                self.cubeCenters[5][1],
+                                self.cubeCenters[5][2]-self.cubeRadius*2-1), self.cubeRadius),
+                           [False,True,False,False,False,True]])
+        self.cubes.append([Cube((self.cubeCenters[5][0]+self.cubeRadius*2+1,
+                                self.cubeCenters[5][1],
+                                self.cubeCenters[5][2]-self.cubeRadius*2-1), self.cubeRadius),
+                           [False,True,False,False,True,True]])
+        self.cubes.append([Cube((self.cubeCenters[5][0]-self.cubeRadius*2-1,
+                                self.cubeCenters[5][1],
+                                self.cubeCenters[5][2]), self.cubeRadius),
+                           [False,False,True,False,False,True]])
+        self.cubes.append([Cube((self.cubeCenters[5][0],
+                                self.cubeCenters[5][1],
+                                self.cubeCenters[5][2]), self.cubeRadius),
+                           [False,False,False,False,False,True]])
+        self.cubes.append([Cube((self.cubeCenters[5][0]+self.cubeRadius*2+1,
+                                self.cubeCenters[5][1],
+                                self.cubeCenters[5][2]), self.cubeRadius),
+                           [False,False,False,False,True,True]])
+        self.cubes.append([Cube((self.cubeCenters[5][0]-self.cubeRadius*2-1,
+                                self.cubeCenters[5][1],
+                                self.cubeCenters[5][2]+self.cubeRadius*2+1), self.cubeRadius),
+                           [False,False,True,True,False,True]])
+        self.cubes.append([Cube((self.cubeCenters[5][0],
+                                self.cubeCenters[5][1],
+                                self.cubeCenters[5][2]+self.cubeRadius*2+1), self.cubeRadius),
+                           [False,False,False,True,False,True]])
+        self.cubes.append([Cube((self.cubeCenters[5][0]+self.cubeRadius*2+1,
+                                self.cubeCenters[5][1],
+                                self.cubeCenters[5][2]+self.cubeRadius*2+1), self.cubeRadius),
+                           [False,False,False,True,True,True]])
+
+
 
         # middle nine cubes
         self.cubes.append([Cube((self.magicCubeCenter[0]-self.cubeRadius*2-1,
@@ -265,43 +282,43 @@ class MagicCubeDisplay:
                                 self.magicCubeCenter[2]+self.cubeRadius*2+1), self.cubeRadius),
                            [False,False,False,True,True,False]])
 
-        # top nine cubes
-        self.cubes.append([Cube((self.cubeCenters[5][0]-self.cubeRadius*2-1,
-                                self.cubeCenters[5][1],
-                                self.cubeCenters[5][2]-self.cubeRadius*2-1), self.cubeRadius),
-                           [False,True,True,False,False,True]])
-        self.cubes.append([Cube((self.cubeCenters[5][0],
-                                self.cubeCenters[5][1],
-                                self.cubeCenters[5][2]-self.cubeRadius*2-1), self.cubeRadius),
-                           [False,True,False,False,False,True]])
-        self.cubes.append([Cube((self.cubeCenters[5][0]+self.cubeRadius*2+1,
-                                self.cubeCenters[5][1],
-                                self.cubeCenters[5][2]-self.cubeRadius*2-1), self.cubeRadius),
-                           [False,True,False,False,True,True]])
-        self.cubes.append([Cube((self.cubeCenters[5][0]-self.cubeRadius*2-1,
-                                self.cubeCenters[5][1],
-                                self.cubeCenters[5][2]), self.cubeRadius),
-                           [False,False,True,False,False,True]])
-        self.cubes.append([Cube((self.cubeCenters[5][0],
-                                self.cubeCenters[5][1],
-                                self.cubeCenters[5][2]), self.cubeRadius),
-                           [False,False,False,False,False,True]])
-        self.cubes.append([Cube((self.cubeCenters[5][0]+self.cubeRadius*2+1,
-                                self.cubeCenters[5][1],
-                                self.cubeCenters[5][2]), self.cubeRadius),
-                           [False,False,False,False,True,True]])
-        self.cubes.append([Cube((self.cubeCenters[5][0]-self.cubeRadius*2-1,
-                                self.cubeCenters[5][1],
-                                self.cubeCenters[5][2]+self.cubeRadius*2+1), self.cubeRadius),
-                           [False,False,True,True,False,True]])
-        self.cubes.append([Cube((self.cubeCenters[5][0],
-                                self.cubeCenters[5][1],
-                                self.cubeCenters[5][2]+self.cubeRadius*2+1), self.cubeRadius),
-                           [False,False,False,True,False,True]])
-        self.cubes.append([Cube((self.cubeCenters[5][0]+self.cubeRadius*2+1,
-                                self.cubeCenters[5][1],
-                                self.cubeCenters[5][2]+self.cubeRadius*2+1), self.cubeRadius),
-                           [False,False,False,True,True,True]])
+        # bottom nine cubes
+        self.cubes.append([Cube((self.cubeCenters[1][0]-self.cubeRadius*2-1,
+                                self.cubeCenters[1][1]-self.cubeRadius*2-1,
+                                self.cubeCenters[1][2]), self.cubeRadius),
+                           [True,True,True,False,False,False]])
+        self.cubes.append([Cube((self.cubeCenters[1][0],
+                                self.cubeCenters[1][1]-self.cubeRadius*2-1,
+                                self.cubeCenters[1][2]), self.cubeRadius),
+                           [True,True,False,False,False,False]])
+        self.cubes.append([Cube((self.cubeCenters[0][0]+self.cubeRadius*2+1,
+                                self.cubeCenters[0][1],
+                                self.cubeCenters[0][2]-self.cubeRadius*2-1), self.cubeRadius),
+                           [True,True,False,False,True,False]])
+        self.cubes.append([Cube((self.cubeCenters[0][0]-self.cubeRadius*2-1,
+                                self.cubeCenters[0][1],
+                                self.cubeCenters[0][2]), self.cubeRadius),
+                           [True,False,True,False,False,False]])
+        self.cubes.append([Cube((self.cubeCenters[0][0],
+                                self.cubeCenters[0][1],
+                                self.cubeCenters[0][2]), self.cubeRadius),
+                           [True,False,False,False,False,False]])
+        self.cubes.append([Cube((self.cubeCenters[0][0]+self.cubeRadius*2+1,
+                                self.cubeCenters[0][1],
+                                self.cubeCenters[0][2]), self.cubeRadius),
+                           [True,False,False,False,True,False]])
+        self.cubes.append([Cube((self.cubeCenters[0][0]-self.cubeRadius*2-1,
+                                self.cubeCenters[0][1],
+                                self.cubeCenters[0][2]+self.cubeRadius*2+1), self.cubeRadius),
+                           [True,False,True,True,False,False]])
+        self.cubes.append([Cube((self.cubeCenters[0][0],
+                                self.cubeCenters[0][1],
+                                self.cubeCenters[0][2]+self.cubeRadius*2+1), self.cubeRadius),
+                           [True,False,False,True,False,False]])
+        self.cubes.append([Cube((self.cubeCenters[0][0]+self.cubeRadius*2+1,
+                                self.cubeCenters[0][1],
+                                self.cubeCenters[0][2]+self.cubeRadius*2+1), self.cubeRadius),
+                           [True,False,False,True,True,False]])
 
 class ProjectionViewer:
     """ Displays 3D objects on a Pygame screen """
@@ -322,10 +339,6 @@ class ProjectionViewer:
         self.magicCubeLogic = MagicCubeLogic()
         self.isAnimated = False
         self.key = None
-
-        self.alpha = 0
-        self.beta = 0
-        self.gamma = 0
 
     def showAnimation(self, action):
         if action == 'F':
@@ -348,12 +361,12 @@ class ProjectionViewer:
             for i in [2,5,8,11,14,17,20,23,26]:
                 cube, colorDisplay = self.magicCubeDisplay.cubes[i]
                 cube.rotateLine(self.magicCubeDisplay.magicCubeCenter, tuple(center), -math.pi/20)
-        elif action == 'D':
+        elif action == 'U':
             center = self.magicCubeDisplay.cubes[22][0].center
             for i in [18,19,20,21,22,23,24,25,26]:
                 cube, colorDisplay = self.magicCubeDisplay.cubes[i]
                 cube.rotateLine(self.magicCubeDisplay.magicCubeCenter, tuple(center), -math.pi/20)
-        elif action == 'U':
+        elif action == 'D':
             center = self.magicCubeDisplay.cubes[4][0].center
             for i in [0,1,2,3,4,5,6,7,8]:
                 cube, colorDisplay = self.magicCubeDisplay.cubes[i]
@@ -403,8 +416,71 @@ class ProjectionViewer:
                 cnt = 0
                 self.isAnimated = False
 
+                if self.key == pygame.K_f:
+                    tmpCubes = []
+                    for cube, colorDisplay in self.magicCubeDisplay.cubes:
+                        tmpCubes.append([deepcopy(cube), deepcopy(colorDisplay)])
+
+                    for a, b in self.magicCubeLogic.cube_proj_func['F']:
+                        tmpCubes[b] = [deepcopy(self.magicCubeDisplay.cubes[a][0]),
+                                       deepcopy(self.magicCubeDisplay.cubes[a][1])]
+
+                    self.magicCubeDisplay.cubes = tmpCubes
+                elif self.key == pygame.K_b:
+                    tmpCubes = []
+                    for cube, colorDisplay in self.magicCubeDisplay.cubes:
+                        tmpCubes.append([deepcopy(cube), deepcopy(colorDisplay)])
+
+                    for a, b in self.magicCubeLogic.cube_proj_func['B']:
+                        tmpCubes[b] = [deepcopy(self.magicCubeDisplay.cubes[a][0]),
+                                       deepcopy(self.magicCubeDisplay.cubes[a][1])]
+
+                    self.magicCubeDisplay.cubes = tmpCubes
+                elif self.key == pygame.K_l:
+                    tmpCubes = []
+                    for cube, colorDisplay in self.magicCubeDisplay.cubes:
+                        tmpCubes.append([deepcopy(cube), deepcopy(colorDisplay)])
+
+                    for a, b in self.magicCubeLogic.cube_proj_func['L']:
+                        tmpCubes[b] = [deepcopy(self.magicCubeDisplay.cubes[a][0]),
+                                       deepcopy(self.magicCubeDisplay.cubes[a][1])]
+
+                    self.magicCubeDisplay.cubes = tmpCubes
+                elif self.key == pygame.K_r:
+                    tmpCubes = []
+                    for cube, colorDisplay in self.magicCubeDisplay.cubes:
+                        tmpCubes.append([deepcopy(cube), deepcopy(colorDisplay)])
+
+                    for a, b in self.magicCubeLogic.cube_proj_func['R']:
+                        tmpCubes[b] = [deepcopy(self.magicCubeDisplay.cubes[a][0]),
+                                       deepcopy(self.magicCubeDisplay.cubes[a][1])]
+
+                    self.magicCubeDisplay.cubes = tmpCubes
+                elif self.key == pygame.K_u:
+                    tmpCubes = []
+                    for cube, colorDisplay in self.magicCubeDisplay.cubes:
+                        tmpCubes.append([deepcopy(cube), deepcopy(colorDisplay)])
+
+                    for a, b in self.magicCubeLogic.cube_proj_func['U']:
+                        tmpCubes[b] = [deepcopy(self.magicCubeDisplay.cubes[a][0]),
+                                       deepcopy(self.magicCubeDisplay.cubes[a][1])]
+                    self.magicCubeDisplay.cubes = tmpCubes
+                elif self.key == pygame.K_d:
+                    tmpCubes = []
+                    for cube, colorDisplay in self.magicCubeDisplay.cubes:
+                        tmpCubes.append([deepcopy(cube), deepcopy(colorDisplay)])
+
+                    for a, b in self.magicCubeLogic.cube_proj_func['D']:
+                        tmpCubes[b] = [deepcopy(self.magicCubeDisplay.cubes[a][0]),
+                                       deepcopy(self.magicCubeDisplay.cubes[a][1])]
+
+                    self.magicCubeDisplay.cubes = tmpCubes
+
             self.display()
             pygame.display.flip()
+
+
+
 
     def display(self):
         """ Draw the wireframes on the screen. """
@@ -412,8 +488,8 @@ class ProjectionViewer:
         self.screen.fill(self.background)
 
         avg_z = []
-        for id in range(27):
-            k = self.magicCubeLogic.cur_order[id]
+        for k in range(27):
+            #k = self.magicCubeLogic.cur_order[id]
             cube = self.magicCubeDisplay.cubes[k][0]
             for i, [n1, n2, n3, n4] in enumerate(cube.faces):
                 z = (cube.nodes[n1][2]+cube.nodes[n2][2]+cube.nodes[n3][2]+cube.nodes[n4][2])/4.0
@@ -435,6 +511,7 @@ class ProjectionViewer:
                           (cube.nodes[n3][0], cube.nodes[n3][1]),
                           (cube.nodes[n4][0], cube.nodes[n4][1])]
 
+            colorShown = True
             if colorShown:
                 pygame.draw.polygon(self.screen, self.faceColours[i], point_list)
                 pygame.draw.line(self.screen, self.edgeColour, (cube.nodes[n1][0], cube.nodes[n1][1]), (cube.nodes[n2][0], cube.nodes[n2][1]), 5)
