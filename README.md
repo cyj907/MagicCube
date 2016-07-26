@@ -1,0 +1,2 @@
+# MagicCube
+magic cube game
