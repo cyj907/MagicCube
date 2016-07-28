@@ -17,20 +17,20 @@ class Cube:
         self.__add_faces__()
 
     def __add_nodes__(self):
-        # bottom four nodes (clockwise)
+        # top four nodes (clockwise)
         self.nodes.append([self.x-self.r,self.y-self.r,self.z-self.r])
         self.nodes.append([self.x-self.r,self.y-self.r,self.z+self.r])
         self.nodes.append([self.x+self.r,self.y-self.r,self.z+self.r])
         self.nodes.append([self.x+self.r,self.y-self.r,self.z-self.r])
 
-        # top four nodes (clockwise)
+        # bottom four nodes (clockwise)
         self.nodes.append([self.x-self.r,self.y+self.r,self.z-self.r])
         self.nodes.append([self.x-self.r,self.y+self.r,self.z+self.r])
         self.nodes.append([self.x+self.r,self.y+self.r,self.z+self.r])
         self.nodes.append([self.x+self.r,self.y+self.r,self.z-self.r])
 
     def __add_edges__(self):
-        # bottom four edges (clockwise)
+        # top four edges (clockwise)
         self.edges.append([3,0])
         self.edges.append([0,1])
         self.edges.append([1,2])
@@ -42,14 +42,14 @@ class Cube:
         self.edges.append([2,6])
         self.edges.append([3,7])
 
-        # top four edges (clockwise)
+        # bottom four edges (clockwise)
         self.edges.append([7,4])
         self.edges.append([4,5])
         self.edges.append([5,6])
         self.edges.append([6,7])
 
     def __add_faces__(self):
-        # bottom (nodes arranged in counter clock wise order)
+        # top (nodes arranged in counter clock wise order)
         self.faces.append([0,3,2,1])
         # front
         self.faces.append([0,4,7,3])
@@ -59,7 +59,7 @@ class Cube:
         self.faces.append([1,2,6,5])
         # right
         self.faces.append([2,3,7,6])
-        # top
+        # bottom
         self.faces.append([4,5,6,7])
 
     def rotateX(self, (cx,cy,cz), radians):

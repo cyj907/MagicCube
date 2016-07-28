@@ -1,6 +1,6 @@
-from MagicCube import MagicCubeLogic
 from copy import deepcopy
 from PriorityQueue import PriorityQueue
+import MagicCubeConst
 
 def shuffleMagicCube(mc, stepCnt):
     from random import randint
@@ -8,10 +8,13 @@ def shuffleMagicCube(mc, stepCnt):
     prev_act = None
     actions = []
     for i in range(stepCnt):
-        act = MagicCubeLogic.availActions[randint(0,len(MagicCubeLogic.availActions)-1)]
+        act = MagicCubeConst.availActions[randint(0,len(MagicCubeConst.availActions)-1)]
+        while prev_act != None and act == MagicCubeConst.pair_orients[prev_act]:
+            act = MagicCubeConst.availActions[randint(0,len(MagicCubeConst.availActions)-1)]
+
         if consec_cnt == 2:
-            while act == prev_act:
-                act = MagicCubeLogic.availActions[randint(0,len(MagicCubeLogic.availActions)-1)]
+            while act == prev_act or prev_act != None and act == MagicCubeConst.pair_orients[prev_act]:
+                act = MagicCubeConst.availActions[randint(0,len(MagicCubeConst.availActions)-1)]
 
         if act == prev_act:
             consec_cnt += 1
@@ -20,7 +23,6 @@ def shuffleMagicCube(mc, stepCnt):
             prev_act = act
         mc.takeAction(act)
         actions.append(act)
-    print actions
     return mc, actions[::-1]
 
 class MagicCubeAI:
@@ -35,15 +37,17 @@ class MagicCubeAI:
         return nextState
 
     # iterative depth first search, A* ? (what is heuristic?)
-    # TODO:
     # add max consecutive step restriction
-    def IDA(self, maxDepth=3):
+    def IDA(self, maxDepth=5):
         from random import randint
         pq = PriorityQueue(['h'])
-        stack = [{"state": self.state, "depth": 0, "act": None, "actions": deepcopy(MagicCubeLogic.availActions), "prev":None}]
+        stack = [{"state": self.state, "depth": 0, "act": None, "actions": deepcopy(MagicCubeConst.availActions), "prev":None}]
 
         while True:
+            aaa = 0
             while len(stack) > 0:
+                aaa += 1
+                print aaa
                 obj = stack[len(stack)-1]
                 state = obj["state"]
                 depth = obj["depth"]
@@ -70,23 +74,41 @@ class MagicCubeAI:
                 if len(actions) == 0:
                     stack.pop()
                     continue
-                act = actions.pop()
+                act = actions.pop(randint(0,len(actions)-1))
+                # prevent actions cancelling out
+                if MagicCubeConst.pair_orients[act] == obj["act"]:
+                    if len(actions) == 0:
+                        stack.pop()
+                        continue
+                    act = actions.pop(randint(0,len(actions)-1))
+                # prevent the same consecutive actions
+                if act == obj["act"]:
+                    prev = obj["prev"]
+                    if prev != None and prev["act"] == act:
+                        if len(actions) == 0:
+                            stack.pop()
+                            continue
+                        else:
+                            act = actions.pop(randint(0,len(actions)-1))
+
                 nextState = MagicCubeAI.GetNextState(state, act)
                 nextObj = {"state": nextState,
                            "depth": depth+1,
                            "act": act,
-                           "actions": deepcopy(MagicCubeLogic.availActions),
+                           "actions": deepcopy(MagicCubeConst.availActions),
                            "prev": obj}
                 stack.append(nextObj)
 
-            if len(pq.queue) > 1000:
-                while len(pq.queue) > randint(2, 100):
+            d = 12*maxDepth
+            if len(pq.queue) > d:
+                left = randint(3, min(d,len(pq.queue)))
+                while len(pq.queue) > left:
                     pq.pop()
+            print len(pq.queue)
             elem = pq.pop()
             obj = elem["obj"]
             obj["depth"] = 0
             stack = [obj]
-            print len(pq.queue)
 
     @staticmethod
     def heuristic(state):
@@ -97,6 +119,27 @@ class MagicCubeAI:
         # cubes on the line: sum(number of dislocated faces of each cube / 2) / 4
         # cubes on the corner: sum(number of dislocated faces + 1 / 2) / 4
         # max(cubes on the line, cubes on the corner
+
+        dist_edge = 0
+        dist_corn = 0
+        for i in range(27):
+            id = state.cur_order[i]
+            face_list = state.face_orients[id]
+            cnt = 0
+            for i in range(6):
+                if MagicCubeConst.cube_visible_faces[id][i]:
+                    cube_face_color = MagicCubeConst.colors[MagicCubeConst.faces2Indices[face_list[i]]]
+                    orient_face_color = MagicCubeConst.colors[i]
+                    if cube_face_color != orient_face_color:
+                        cnt += 1
+            if id in MagicCubeConst.edgeCubeIndices:
+                dist_edge += cnt
+            else:
+                dist_corn += cnt + 1
+        return (dist_edge + dist_corn) / 8
+
+
+
         dist = 0
         for i in range(27):
             truePos = state.ori_order[i]

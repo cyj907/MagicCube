@@ -1,5 +1,6 @@
 from MagicCube import MagicCubeLogic, ProjectionViewer
 from MagicCubeAI import MagicCubeAI, shuffleMagicCube
+import MagicCubeConst
 
 
 class MagicCubeSimulation:
@@ -7,10 +8,11 @@ class MagicCubeSimulation:
     def run():
         pv = ProjectionViewer(600, 600)
         initState = MagicCubeLogic()
-        shuffledState, steps = shuffleMagicCube(initState, 2)
+        maxStep = 20
+        shuffledState, steps = shuffleMagicCube(initState, maxStep)
         pv.runSteps(steps)
         SmartGuy = MagicCubeAI(shuffledState)
-        steps = SmartGuy.IDA()
+        steps = SmartGuy.IDA(maxStep)
         pv.runSteps(steps, True)
 
 MagicCubeSimulation.run()
