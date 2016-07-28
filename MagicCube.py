@@ -1,188 +1,73 @@
 from Cube import Cube
 import pygame
 import math
-from copy import deepcopy
+from copy import deepcopy, copy
 
-key_to_function = {
+key_to_view = {
     pygame.K_q:      (lambda x: x.rotateAll('X',  0.1 * math.pi)),
     pygame.K_w:      (lambda x: x.rotateAll('X', -0.1 * math.pi)),
     pygame.K_a:      (lambda x: x.rotateAll('Y',  0.1 * math.pi)),
     pygame.K_s:      (lambda x: x.rotateAll('Y', -0.1 * math.pi)),
     pygame.K_z:      (lambda x: x.rotateAll('Z',  0.1 * math.pi)),
-    pygame.K_x:      (lambda x: x.rotateAll('Z', -0.1 * math.pi)),
-    pygame.K_f:     (lambda x: x.showAnimation('F')),
-    pygame.K_b:     (lambda x: x.showAnimation('B')),
-    pygame.K_l:     (lambda x: x.showAnimation('L')),
-    pygame.K_r:     (lambda x: x.showAnimation('R')),
-    pygame.K_u:     (lambda x: x.showAnimation('U')),
-    pygame.K_d:     (lambda x: x.showAnimation('D'))
+    pygame.K_x:      (lambda x: x.rotateAll('Z', -0.1 * math.pi))
 }
+
+# TODO: add more action
+key2act = {
+    pygame.K_f: "F",
+    pygame.K_F: "F'",
+    pygame.K_b: "B",
+    pygame.K_B: "B'",
+    pygame.K_l: "L",
+    pygame.K_L: "L'",
+    pygame.K_r: "R",
+    pygame.K_R: "R'",
+    pygame.K_u: "U",
+    pygame.K_U: "U'",
+    pygame.K_d: "D",
+    pygame.K_D: "D'"
+}
+
 
 class MagicCubeLogic:
     def __init__(self):
         self.ori_order = [i for i in range(27)]
         self.cur_order = [i for i in range(27)]
-        self.face_proj_func = {}
-        self.face_proj_func['F'] = [2,1,5,3,0,4]
-        self.face_proj_func['B'] = [4,1,0,3,5,2]
-        self.face_proj_func['L'] = [3,0,2,5,4,1]
-        self.face_proj_func['R'] = [1,5,2,0,4,3]
-        self.face_proj_func['U'] = [0,2,3,4,1,5]
-        self.face_proj_func['D'] = [0,4,1,2,3,5]
+        # add face related attributes (colors, orientation)
+        # when an action is taken, the face attributes will be changed
 
-        self.cube_proj_func = {}
-        self.cube_proj_func['F'] = [(18,20),(19,11),(20,2),(9,19),(0,18),(1,9),(11,1),(2,0)]
-        self.cube_proj_func['B'] = [(24,6),(15,7),(6,8),(8,26),(7,17),(25,15),(26,24),(17,25)]
-        self.cube_proj_func['L'] = [(24,18),(21,9),(18,0),(9,3),(0,6),(3,15),(6,24),(15,21)]
-        self.cube_proj_func['R'] = [(26,8),(17,5),(8,2),(5,11),(2,20),(11,23),(20,26),(23,17)]
-        self.cube_proj_func['U'] = [(24,26),(25,23),(26,20),(23,19),(20,18),(19,21),(18,24),(21,25)]
-        self.cube_proj_func['D'] = [(8,6),(7,3),(6,0),(3,1),(0,2),(1,5),(2,8),(5,7)]
+    # add dist from each face of the small cube to the whole face of the correct magic cube
+    # TODO
+
+    availActions = ['F', 'B', 'L', 'R', 'U', 'D']
+
+    cube_proj_func = {}
+    cube_proj_func['F'] = [(18,20),(19,11),(20,2),(9,19),(0,18),(1,9),(11,1),(2,0)]
+    cube_proj_func['B'] = [(24,6),(15,7),(6,8),(8,26),(7,17),(25,15),(26,24),(17,25)]
+    cube_proj_func['L'] = [(24,18),(21,9),(18,0),(9,3),(0,6),(3,15),(6,24),(15,21)]
+    cube_proj_func['R'] = [(26,8),(17,5),(8,2),(5,11),(2,20),(11,23),(20,26),(23,17)]
+    cube_proj_func['U'] = [(24,26),(25,23),(26,20),(23,19),(20,18),(19,21),(18,24),(21,25)]
+    cube_proj_func['D'] = [(8,6),(7,3),(6,0),(3,1),(0,2),(1,5),(2,8),(5,7)]
+
 
     def takeAction(self, action):
-        if action == 'F':
-            tmp = self.cur_order[20]
-            self.cur_order[20] = self.cur_order[18]
-            self.cur_order[18] = self.cur_order[0]
-            self.cur_order[0] = self.cur_order[2]
-            self.cur_order[2] = tmp
+        prev_order = deepcopy(self.cur_order)
+        for a, b in MagicCubeLogic.cube_proj_func[action]:
+            self.cur_order[b] = prev_order[a]
 
-            tmp = self.cur_order[11]
-            self.cur_order[11] = self.cur_order[19]
-            self.cur_order[19] = self.cur_order[9]
-            self.cur_order[9] = self.cur_order[1]
-            self.cur_order[1] = tmp
-        elif action == "F'":
-            tmp = self.cur_order[18]
-            self.cur_order[18] = self.cur_order[20]
-            self.cur_order[20] = self.cur_order[2]
-            self.cur_order[2] = self.cur_order[0]
-            self.cur_order[0] = tmp
+    def IsGoal(self):
+        isGoal = True
+        for i in range(27):
+            if self.ori_order[i] != self.cur_order[i]:
+                isGoal = False
+                break
+        return isGoal
 
-            tmp = self.cur_order[9]
-            self.cur_order[9] = self.cur_order[19]
-            self.cur_order[19] = self.cur_order[11]
-            self.cur_order[11] = self.cur_order[1]
-            self.cur_order[1] = tmp
-        elif action == 'B':
-            tmp = self.cur_order[6]
-            self.cur_order[6] = self.cur_order[24]
-            self.cur_order[24] = self.cur_order[26]
-            self.cur_order[26] = self.cur_order[8]
-            self.cur_order[8] = tmp
-
-            tmp = self.cur_order[7]
-            self.cur_order[7] = self.cur_order[15]
-            self.cur_order[15] = self.cur_order[25]
-            self.cur_order[25] = self.cur_order[17]
-            self.cur_order[17] = tmp
-        elif action == "B'":
-            tmp = self.cur_order[26]
-            self.cur_order[26] = self.cur_order[24]
-            self.cur_order[24] = self.cur_order[6]
-            self.cur_order[6] = self.cur_order[8]
-            self.cur_order[8] = tmp
-
-            tmp = self.cur_order[17]
-            self.cur_order[17] = self.cur_order[25]
-            self.cur_order[25] = self.cur_order[15]
-            self.cur_order[15] = self.cur_order[7]
-            self.cur_order[7] = tmp
-        elif action == 'L':
-            tmp = self.cur_order[18]
-            self.cur_order[18] = self.cur_order[24]
-            self.cur_order[24] = self.cur_order[6]
-            self.cur_order[6] = self.cur_order[0]
-            self.cur_order[0] = tmp
-
-            tmp = self.cur_order[9]
-            self.cur_order[9] = self.cur_order[21]
-            self.cur_order[21] = self.cur_order[15]
-            self.cur_order[15] = self.cur_order[3]
-            self.cur_order[3] = tmp
-        elif action == "L'":
-            tmp = self.cur_order[6]
-            self.cur_order[6] = self.cur_order[24]
-            self.cur_order[24] = self.cur_order[18]
-            self.cur_order[18] = self.cur_order[0]
-            self.cur_order[0] = tmp
-
-            tmp = self.cur_order[3]
-            self.cur_order[3] = self.cur_order[15]
-            self.cur_order[15] = self.cur_order[21]
-            self.cur_order[21] = self.cur_order[9]
-            self.cur_order[9] = tmp
-        elif action == 'R':
-            tmp = self.cur_order[8]
-            self.cur_order[8] = self.cur_order[26]
-            self.cur_order[26] = self.cur_order[20]
-            self.cur_order[20] = self.cur_order[2]
-            self.cur_order[2] = tmp
-
-            tmp = self.cur_order[5]
-            self.cur_order[5] = self.cur_order[17]
-            self.cur_order[17] = self.cur_order[23]
-            self.cur_order[23] = self.cur_order[11]
-            self.cur_order[11] = tmp
-        elif action == "R'":
-            tmp = self.cur_order[20]
-            self.cur_order[20] = self.cur_order[26]
-            self.cur_order[26] = self.cur_order[8]
-            self.cur_order[8] = self.cur_order[2]
-            self.cur_order[2] = tmp
-
-            tmp = self.cur_order[11]
-            self.cur_order[11] = self.cur_order[23]
-            self.cur_order[23] = self.cur_order[17]
-            self.cur_order[17] = self.cur_order[5]
-            self.cur_order[5] = tmp
-        elif action == 'U':
-            tmp = self.cur_order[26]
-            self.cur_order[26] = self.cur_order[24]
-            self.cur_order[24] = self.cur_order[18]
-            self.cur_order[18] = self.cur_order[20]
-            self.cur_order[20] = tmp
-
-            tmp = self.cur_order[23]
-            self.cur_order[23] = self.cur_order[25]
-            self.cur_order[25] = self.cur_order[21]
-            self.cur_order[21] = self.cur_order[19]
-            self.cur_order[19] = tmp
-        elif action == "U'":
-            tmp = self.cur_order[24]
-            self.cur_order[24] = self.cur_order[26]
-            self.cur_order[26] = self.cur_order[20]
-            self.cur_order[20] = self.cur_order[18]
-            self.cur_order[18] = tmp
-
-            tmp = self.cur_order[21]
-            self.cur_order[21] = self.cur_order[25]
-            self.cur_order[25] = self.cur_order[23]
-            self.cur_order[23] = self.cur_order[19]
-            self.cur_order[19] = tmp
-        elif action == 'D':
-            tmp = self.cur_order[6]
-            self.cur_order[6] = self.cur_order[8]
-            self.cur_order[8] = self.cur_order[2]
-            self.cur_order[2] = self.cur_order[0]
-            self.cur_order[0] = tmp
-
-            tmp = self.cur_order[3]
-            self.cur_order[3] = self.cur_order[7]
-            self.cur_order[7] = self.cur_order[5]
-            self.cur_order[5] = self.cur_order[1]
-            self.cur_order[1] = tmp
-        else:
-            tmp = self.cur_order[8]
-            self.cur_order[8] = self.cur_order[6]
-            self.cur_order[6] = self.cur_order[0]
-            self.cur_order[0] = self.cur_order[2]
-            self.cur_order[2] = tmp
-
-            tmp = self.cur_order[5]
-            self.cur_order[5] = self.cur_order[7]
-            self.cur_order[7] = self.cur_order[3]
-            self.cur_order[3] = self.cur_order[1]
-            self.cur_order[1] = tmp
+    def __deepcopy__(self, memo):
+        obj = copy(self)
+        obj.ori_order = deepcopy(self.ori_order)
+        obj.cur_order = deepcopy(self.cur_order)
+        return obj
 
 class MagicCubeDisplay:
     def __init__(self, center, d):
@@ -336,10 +221,6 @@ class ProjectionViewer:
         self.faceColours = [(255, 255, 0),(255,0,0), (0,255,0), (255,0,255), (0,0,255), (255,255,255)]
         self.nodeRadius = 4
 
-        self.magicCubeLogic = MagicCubeLogic()
-        self.isAnimated = False
-        self.key = None
-
     def showAnimation(self, action):
         if action == 'F':
             center = self.magicCubeDisplay.cubes[10][0].center
@@ -372,115 +253,81 @@ class ProjectionViewer:
                 cube, colorDisplay = self.magicCubeDisplay.cubes[i]
                 cube.rotateLine(self.magicCubeDisplay.magicCubeCenter,tuple(center), -math.pi/20)
 
-    def run(self):
-        """ Create a pygame screen until it is closed. """
-
+    def runSteps(self, steps, forever_run=False):
         running = True
         cnt = 0
+        isAnimated = True
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
                 elif event.type == pygame.KEYDOWN:
-                    if event.key in key_to_function:
-                        if event.key == pygame.K_f or \
-                                event.key == pygame.K_b or \
-                                event.key == pygame.K_l or \
-                                event.key == pygame.K_r or \
-                                event.key == pygame.K_u or \
-                                event.key == pygame.K_d:
-                            self.isAnimated = True
-                            self.key = event.key
+                    if event.key in key_to_view:
+                        key_to_view[event.key](self)
+                        continue
 
-                            if event.key == pygame.K_f:
-                                self.magicCubeLogic.takeAction('F')
-                            elif event.key == pygame.K_b:
-                                self.magicCubeLogic.takeAction('B')
-                            elif event.key == pygame.K_l:
-                                self.magicCubeLogic.takeAction('L')
-                            elif event.key == pygame.K_r:
-                                self.magicCubeLogic.takeAction('R')
-                            elif event.key == pygame.K_u:
-                                self.magicCubeLogic.takeAction('U')
-                            else:
-                                self.magicCubeLogic.takeAction('D')
+            if cnt == 0 and isAnimated:
+                step = steps.pop()
 
-                        else:
-                            key_to_function[event.key](self)
-
-            if self.isAnimated:
-                key_to_function[self.key](self)
+            if isAnimated:
+                self.showAnimation(step)
                 cnt += 1
+            elif cnt == 0 and not forever_run:
+                pygame.time.wait(1000)
+                break
 
             if cnt == 10:
                 cnt = 0
-                self.isAnimated = False
+                if len(steps) == 0:
+                    isAnimated = False
 
-                if self.key == pygame.K_f:
-                    tmpCubes = []
-                    for cube, colorDisplay in self.magicCubeDisplay.cubes:
-                        tmpCubes.append([deepcopy(cube), deepcopy(colorDisplay)])
-
-                    for a, b in self.magicCubeLogic.cube_proj_func['F']:
-                        tmpCubes[b] = [deepcopy(self.magicCubeDisplay.cubes[a][0]),
-                                       deepcopy(self.magicCubeDisplay.cubes[a][1])]
-
-                    self.magicCubeDisplay.cubes = tmpCubes
-                elif self.key == pygame.K_b:
-                    tmpCubes = []
-                    for cube, colorDisplay in self.magicCubeDisplay.cubes:
-                        tmpCubes.append([deepcopy(cube), deepcopy(colorDisplay)])
-
-                    for a, b in self.magicCubeLogic.cube_proj_func['B']:
-                        tmpCubes[b] = [deepcopy(self.magicCubeDisplay.cubes[a][0]),
-                                       deepcopy(self.magicCubeDisplay.cubes[a][1])]
-
-                    self.magicCubeDisplay.cubes = tmpCubes
-                elif self.key == pygame.K_l:
-                    tmpCubes = []
-                    for cube, colorDisplay in self.magicCubeDisplay.cubes:
-                        tmpCubes.append([deepcopy(cube), deepcopy(colorDisplay)])
-
-                    for a, b in self.magicCubeLogic.cube_proj_func['L']:
-                        tmpCubes[b] = [deepcopy(self.magicCubeDisplay.cubes[a][0]),
-                                       deepcopy(self.magicCubeDisplay.cubes[a][1])]
-
-                    self.magicCubeDisplay.cubes = tmpCubes
-                elif self.key == pygame.K_r:
-                    tmpCubes = []
-                    for cube, colorDisplay in self.magicCubeDisplay.cubes:
-                        tmpCubes.append([deepcopy(cube), deepcopy(colorDisplay)])
-
-                    for a, b in self.magicCubeLogic.cube_proj_func['R']:
-                        tmpCubes[b] = [deepcopy(self.magicCubeDisplay.cubes[a][0]),
-                                       deepcopy(self.magicCubeDisplay.cubes[a][1])]
-
-                    self.magicCubeDisplay.cubes = tmpCubes
-                elif self.key == pygame.K_u:
-                    tmpCubes = []
-                    for cube, colorDisplay in self.magicCubeDisplay.cubes:
-                        tmpCubes.append([deepcopy(cube), deepcopy(colorDisplay)])
-
-                    for a, b in self.magicCubeLogic.cube_proj_func['U']:
-                        tmpCubes[b] = [deepcopy(self.magicCubeDisplay.cubes[a][0]),
-                                       deepcopy(self.magicCubeDisplay.cubes[a][1])]
-                    self.magicCubeDisplay.cubes = tmpCubes
-                elif self.key == pygame.K_d:
-                    tmpCubes = []
-                    for cube, colorDisplay in self.magicCubeDisplay.cubes:
-                        tmpCubes.append([deepcopy(cube), deepcopy(colorDisplay)])
-
-                    for a, b in self.magicCubeLogic.cube_proj_func['D']:
-                        tmpCubes[b] = [deepcopy(self.magicCubeDisplay.cubes[a][0]),
-                                       deepcopy(self.magicCubeDisplay.cubes[a][1])]
-
-                    self.magicCubeDisplay.cubes = tmpCubes
+                tmpCubes = []
+                for cube, colorDisplay in self.magicCubeDisplay.cubes:
+                    tmpCubes.append([deepcopy(cube), deepcopy(colorDisplay)])
+                for a, b in MagicCubeLogic.cube_proj_func[step]:
+                    tmpCubes[b] = [deepcopy(self.magicCubeDisplay.cubes[a][0]),
+                                    deepcopy(self.magicCubeDisplay.cubes[a][1])]
+                self.magicCubeDisplay.cubes = tmpCubes
 
             self.display()
             pygame.display.flip()
 
+    def run(self):
+        """ Create a pygame screen until it is closed. """
 
+        running = True
+        cnt = 0
+        isAnimated = False
+        curAct = None
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key in key_to_view:
+                        key_to_view[event.key](self)
+                    else:
+                        isAnimated = True
+                        curAct = key2act[event.key]
 
+            if isAnimated:
+                self.showAnimation(curAct)
+                cnt += 1
+
+            if cnt == 10:
+                cnt = 0
+                isAnimated = False
+
+                tmpCubes = []
+                for cube, colorDisplay in self.magicCubeDisplay.cubes:
+                    tmpCubes.append([deepcopy(cube), deepcopy(colorDisplay)])
+                for a, b in MagicCubeLogic.cube_proj_func[curAct]:
+                    tmpCubes[b] = [deepcopy(self.magicCubeDisplay.cubes[a][0]),
+                                    deepcopy(self.magicCubeDisplay.cubes[a][1])]
+                self.magicCubeDisplay.cubes = tmpCubes
+
+            self.display()
+            pygame.display.flip()
 
     def display(self):
         """ Draw the wireframes on the screen. """
@@ -489,7 +336,6 @@ class ProjectionViewer:
 
         avg_z = []
         for k in range(27):
-            #k = self.magicCubeLogic.cur_order[id]
             cube = self.magicCubeDisplay.cubes[k][0]
             for i, [n1, n2, n3, n4] in enumerate(cube.faces):
                 z = (cube.nodes[n1][2]+cube.nodes[n2][2]+cube.nodes[n3][2]+cube.nodes[n4][2])/4.0
@@ -511,7 +357,6 @@ class ProjectionViewer:
                           (cube.nodes[n3][0], cube.nodes[n3][1]),
                           (cube.nodes[n4][0], cube.nodes[n4][1])]
 
-            colorShown = True
             if colorShown:
                 pygame.draw.polygon(self.screen, self.faceColours[i], point_list)
                 pygame.draw.line(self.screen, self.edgeColour, (cube.nodes[n1][0], cube.nodes[n1][1]), (cube.nodes[n2][0], cube.nodes[n2][1]), 5)
